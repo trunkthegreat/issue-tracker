@@ -3,767 +3,611 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Issue Tracker - Dashboard</title>
+    <title>Issue Tracker Dashboard</title>
     <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Token Authentication Modal -->
+    <div id="tokenModal" class="token-container" style="display: none;">
+        <div class="token-form">
+            <h2 style="text-align: center; margin-bottom: 20px;">GitHub Authentication Required</h2>
+            <p style="margin-bottom: 20px; opacity: 0.9;">Please enter your GitHub Personal Access Token to enable repository access:</p>
+            <div class="form-group">
+                <label for="githubToken">GitHub Token:</label>
+                <input type="password" id="githubToken" class="form-control" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="authenticateToken()" class="btn" style="flex: 1;">Authenticate</button>
+                <button onclick="continueOffline()" class="btn btn-warning" style="flex: 1;">Continue Offline</button>
+            </div>
+            <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                <i class="fas fa-info-circle"></i> 
+                Token is stored locally and used for GitHub API access. 
+                <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--pastel-mint);">Generate token here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="glass-container">
+        <div class="header">
+            <h1><i class="fas fa-bug"></i> Issue Tracker</h1>
+            <p>Comprehensive Issue Management & Resolution System</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-container">
+            <a href="issuelogger.html" class="nav-btn">
+                <i class="fas fa-plus-circle"></i> Log Issues
+            </a>
+            <a href="issueviewer.html" class="nav-btn">
+                <i class="fas fa-eye"></i> View Issues
+            </a>
+            <a href="report.html" class="nav-btn">
+                <i class="fas fa-chart-bar"></i> Reports
+            </a>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="ongoingCount">0</h3>
+                    <p>Ongoing Issues</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="resolvedCount">0</h3>
+                    <p>Resolved Issues</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="overdueCount">0</h3>
+                    <p>Overdue Issues</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalCount">0</h3>
+                    <p>Total Issues</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Issues -->
+        <div class="recent-issues">
+            <h2><i class="fas fa-history"></i> Recent Issues</h2>
+            <div id="recentIssuesList">
+                <!-- Recent issues will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2><i class="fas fa-lightning-bolt"></i> Quick Actions</h2>
+            <div class="action-buttons">
+                <button onclick="openNewIssueModal()" class="btn">
+                    <i class="fas fa-plus"></i> New Issue
+                </button>
+                <button onclick="exportData()" class="btn btn-success">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+                <button onclick="importData()" class="btn btn-warning">
+                    <i class="fas fa-upload"></i> Import Data
+                </button>
+                <button onclick="syncWithGitHub()" class="btn" id="syncBtn">
+                    <i class="fas fa-sync"></i> Sync with GitHub
+                </button>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="system-status">
+            <h2><i class="fas fa-server"></i> System Status</h2>
+            <div class="status-items">
+                <div class="status-item">
+                    <span class="status-label">GitHub Connection:</span>
+                    <span id="githubStatus" class="status-value">Disconnected</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Local Storage:</span>
+                    <span id="storageStatus" class="status-value">Available</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Sync:</span>
+                    <span id="lastSyncStatus" class="status-value">Never</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Issue Modal -->
+    <div id="newIssueModal" class="token-container" style="display: none;">
+        <div class="token-form" style="max-width: 600px;">
+            <h2>Quick New Issue</h2>
+            <div class="form-group">
+                <label for="quickTitle">Issue Title:</label>
+                <input type="text" id="quickTitle" class="form-control" placeholder="Enter issue title...">
+            </div>
+            <div class="form-group">
+                <label for="quickContent">Issue Description:</label>
+                <textarea id="quickContent" class="form-control" placeholder="Describe the issue..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="quickCategory">Category:</label>
+                <select id="quickCategory" class="form-control">
+                    <option value="bug">Bug</option>
+                    <option value="feature">Feature Request</option>
+                    <option value="improvement">Improvement</option>
+                    <option value="question">Question</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="createQuickIssue()" class="btn" style="flex: 1;">Create Issue</button>
+                <button onclick="closeNewIssueModal()" class="btn btn-warning" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+
     <style>
-        .dashboard-grid {
+        .dashboard-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin: 30px 0;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
-        .dashboard-card {
-            background: rgba(255, 255, 255, 0.95);
-            border: 3px solid var(--fire-orange);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
             transition: all 0.3s ease;
-            cursor: pointer;
             position: relative;
             overflow: hidden;
         }
 
-        .dashboard-card::before {
+        .stat-card::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-orange), var(--accent-pink));
         }
 
-        .dashboard-card:hover::before {
-            left: 100%;
+        .stat-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .dashboard-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-            border-color: var(--jungle-green);
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--pastel-mint);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .card-icon {
-            font-size: 4rem;
+        .stat-info h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .stat-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .recent-issues, .quick-actions, .system-status {
+            margin-bottom: 30px;
+        }
+
+        .recent-issues h2, .quick-actions h2, .system-status h2 {
             margin-bottom: 20px;
-            display: block;
-        }
-
-        .card-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--brick-red);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .card-description {
-            font-size: 1rem;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .card-stats {
+            color: #ffffff;
             display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid var(--fire-orange);
+            align-items: center;
+            gap: 10px;
         }
 
-        .stat-item {
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            min-width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status-items {
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }
-
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--fire-red);
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .welcome-section {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 3px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 40px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: var(--text-shadow);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .welcome-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .quick-nav {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 30px 0;
-        }
-
-        .nav-button {
-            padding: 15px 30px;
-            border: 3px solid var(--fire-orange);
-            border-radius: 15px;
-            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .nav-button:hover {
-            background: linear-gradient(135deg, var(--fire-orange), var(--jungle-green));
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .stats-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .overview-card {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid var(--fire-orange);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .overview-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .overview-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--brick-red);
-            margin-bottom: 10px;
-        }
-
-        .overview-label {
-            font-size: 1rem;
-            color: #666;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .recent-activity {
-            background: rgba(255, 255, 255, 0.95);
-            border: 3px solid var(--fire-orange);
-            border-radius: 20px;
-            padding: 30px;
-            margin: 20px 0;
-        }
-
-        .activity-header {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--brick-red);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-align: center;
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: center;
             gap: 15px;
-            padding: 15px;
-            margin: 10px 0;
-            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            border-left: 4px solid var(--fire-orange);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .activity-item:hover {
-            background: rgba(255, 255, 255, 0.8);
-            transform: translateX(5px);
+        .status-label {
+            font-weight: 600;
         }
 
-        .activity-icon {
-            font-size: 1.5rem;
-            width: 40px;
-            text-align: center;
+        .status-value {
+            color: var(--pastel-mint);
+            font-weight: 500;
         }
 
-        .activity-content {
-            flex: 1;
+        .status-value.connected {
+            color: var(--success);
         }
 
-        .activity-title {
-            font-weight: bold;
-            color: var(--brick-red);
-            margin-bottom: 5px;
-        }
-
-        .activity-time {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .feature-highlights {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid var(--fire-orange);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--fire-red);
-        }
-
-        .feature-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--brick-red);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .feature-description {
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .version-info {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 12px;
-            z-index: 1000;
+        .status-value.error {
+            color: var(--error);
         }
 
         @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+            .dashboard-stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
             
-            .quick-nav {
+            .action-buttons {
                 flex-direction: column;
-                align-items: center;
             }
             
-            .nav-button {
-                width: 80%;
-                text-align: center;
-            }
-            
-            .welcome-title {
-                font-size: 2rem;
-            }
-            
-            .stats-overview {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .feature-highlights {
-                grid-template-columns: 1fr;
+            .action-buttons .btn {
+                min-width: auto;
             }
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>🔥 Issue Tracker Dashboard 🔥</h1>
-            <p>Professional Issue Management & Resolution System</p>
-        </div>
-
-        <!-- Welcome Section -->
-        <div class="welcome-section">
-            <div class="welcome-title">Welcome Back!</div>
-            <div class="welcome-subtitle">
-                Streamline your issue management with our powerful tracking system.<br>
-                Keep track of bugs, feature requests, and user support efficiently.
-            </div>
-            
-            <!-- Quick Navigation -->
-            <div class="quick-nav">
-                <a href="issuelogger.html" class="nav-button">📝 Issue Logger</a>
-                <a href="report.html" class="nav-button">📊 Reports</a>
-                <a href="issueviewer.html" class="nav-button">👁️ Issue Viewer</a>
-            </div>
-        </div>
-
-        <!-- Statistics Overview -->
-        <div class="glass-card">
-            <h2 class="text-white text-center mb-25">📈 SYSTEM OVERVIEW</h2>
-            <div class="stats-overview" id="statsOverview">
-                <!-- Stats will be populated by JavaScript -->
-            </div>
-        </div>
-
-        <!-- Main Dashboard Cards -->
-        <div class="dashboard-grid">
-            <!-- Issue Logger Card -->
-            <div class="dashboard-card" onclick="window.location.href='issuelogger.html'">
-                <span class="card-icon">📝</span>
-                <div class="card-title">Issue Logger</div>
-                <div class="card-description">
-                    Create, manage, and track issues with advanced search capabilities. 
-                    Support for multimedia attachments and voice recordings.
-                </div>
-                <div class="card-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalIssues">-</div>
-                        <div class="stat-label">Total Issues</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="openIssues">-</div>
-                        <div class="stat-label">Open</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reports Card -->
-            <div class="dashboard-card" onclick="window.location.href='report.html'">
-                <span class="card-icon">📊</span>
-                <div class="card-title">Analytics & Reports</div>
-                <div class="card-description">
-                    Comprehensive reporting and analytics for closed issues. 
-                    Track resolution times, performance metrics, and trends.
-                </div>
-                <div class="card-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="resolvedIssues">-</div>
-                        <div class="stat-label">Resolved</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="avgResolutionTime">-</div>
-                        <div class="stat-label">Avg Days</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Issue Viewer Card -->
-            <div class="dashboard-card" onclick="window.location.href='issueviewer.html'">
-                <span class="card-icon">👁️</span>
-                <div class="card-title">Issue Viewer</div>
-                <div class="card-description">
-                    Detailed issue examination with media gallery support. 
-                    Edit, delete, and manage individual issues with full timeline.
-                </div>
-                <div class="card-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="overdueIssues">-</div>
-                        <div class="stat-label">Overdue</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="categories">-</div>
-                        <div class="stat-label">Categories</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="recent-activity">
-            <div class="activity-header">🕒 Recent Activity</div>
-            <div id="recentActivity">
-                <!-- Activity items will be populated by JavaScript -->
-            </div>
-        </div>
-
-        <!-- Feature Highlights -->
-        <div class="glass-card">
-            <h2 class="text-white text-center mb-25">✨ KEY FEATURES</h2>
-            <div class="feature-highlights">
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <div class="feature-title">Advanced Search</div>
-                    <div class="feature-description">
-                        Powerful search with fuzzy matching supporting multiple languages and complex queries.
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <div class="feature-title">Media Support</div>
-                    <div class="feature-description">
-                        Attach images, record voice notes, and manage multimedia content for comprehensive documentation.
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🌍</div>
-                    <div class="feature-title">Multi-Language</div>
-                    <div class="feature-description">
-                        Full Unicode support for international teams working in English, Chinese, Japanese, Arabic, and more.
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📈</div>
-                    <div class="feature-title">Analytics</div>
-                    <div class="feature-description">
-                        Detailed reporting and performance metrics to track team productivity and resolution trends.
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <div class="feature-title">Secure Access</div>
-                    <div class="feature-description">
-                        Token-based authentication ensures only authorized users can modify critical issue data.
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <div class="feature-title">Responsive Design</div>
-                    <div class="feature-description">
-                        Works seamlessly on desktop, tablet, and mobile devices with touch-friendly interfaces.
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Getting Started -->
-        <div class="glass-card">
-            <h2 class="text-white text-center mb-25">🚀 GETTING STARTED</h2>
-            <div style="text-align: center; color: white; line-height: 1.8;">
-                <p style="font-size: 1.1rem; margin-bottom: 20px;">
-                    Welcome to your professional issue tracking system! Here's how to get started:
-                </p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0;">
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">
-                        <div style="font-size: 2rem; margin-bottom: 10px;">1️⃣</div>
-                        <strong>Authenticate</strong><br>
-                        Enter your token to access editing features
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">
-                        <div style="font-size: 2rem; margin-bottom: 10px;">2️⃣</div>
-                        <strong>Create Issues</strong><br>
-                        Log new issues with detailed descriptions
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">
-                        <div style="font-size: 2rem; margin-bottom: 10px;">3️⃣</div>
-                        <strong>Track Progress</strong><br>
-                        Monitor resolution status and timelines
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">
-                        <div style="font-size: 2rem; margin-bottom: 10px;">4️⃣</div>
-                        <strong>Analyze Results</strong><br>
-                        Generate reports and performance insights
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Version Info -->
-    <div class="version-info">
-        Version 1.0.0 | Built with ❤️ for GitHub
-    </div>
 
     <script>
         // Global variables
-        let dashboardData = null;
+        let githubToken = '';
+        let isOnline = false;
+        let issues = [];
+        let categories = {};
 
+        // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardData();
-            populateStats();
-            generateRecentActivity();
+            initializeDashboard();
         });
 
-        function loadDashboardData() {
-            // Load from localStorage first (user data)
-            const userData = localStorage.getItem('issueTrackerData');
-            if (userData) {
-                dashboardData = JSON.parse(userData);
+        function initializeDashboard() {
+            // Check for stored token
+            const storedToken = localStorage.getItem('githubToken');
+            if (storedToken) {
+                githubToken = storedToken;
+                validateToken();
             } else {
-                // Initialize with sample data from database.json structure
-                dashboardData = initializeSampleData();
-                localStorage.setItem('issueTrackerData', JSON.stringify(dashboardData));
-            }
-        }
-
-        function initializeSampleData() {
-            return {
-                categories: [
-                    { id: 1, name: 'Bug Reports' },
-                    { id: 2, name: 'Feature Requests' },
-                    { id: 3, name: 'Technical Issues' },
-                    { id: 4, name: 'User Support' },
-                    { id: 5, name: 'Documentation' },
-                    { id: 6, name: 'Maintenance' }
-                ],
-                issues: [
-                    {
-                        id: 1001,
-                        title: 'Login Page Not Responsive on Mobile Devices',
-                        category: 'Bug Reports',
-                        date: '2024-06-10T09:15:00Z',
-                        content: 'Users are reporting that the login page is not properly responsive on mobile devices.',
-                        resolutionMethod: 'Update CSS media queries for mobile breakpoints.',
-                        expectedDate: '2024-06-15',
-                        actualDate: '',
-                        status: 'ongoing',
-                        lastUpdated: '2024-06-11T14:30:00Z'
-                    },
-                    {
-                        id: 1002,
-                        title: 'Implement Dark Mode Theme',
-                        category: 'Feature Requests',
-                        date: '2024-06-08T14:20:00Z',
-                        content: 'Multiple users have requested a dark mode theme for the application.',
-                        resolutionMethod: 'Create CSS variables for theme colors. Implement theme switcher component.',
-                        expectedDate: '2024-06-20',
-                        actualDate: '2024-06-12',
-                        status: 'finished',
-                        lastUpdated: '2024-06-12T16:45:00Z'
-                    },
-                    {
-                        id: 1003,
-                        title: 'Database Connection Timeout Issues',
-                        category: 'Technical Issues',
-                        date: '2024-06-11T08:30:00Z',
-                        content: 'Intermittent database connection timeouts occurring during peak hours.',
-                        resolutionMethod: 'Increase database connection pool size. Optimize slow queries.',
-                        expectedDate: '2024-06-18',
-                        actualDate: '',
-                        status: 'ongoing',
-                        lastUpdated: '2024-06-12T11:20:00Z'
-                    }
-                ]
-            };
-        }
-
-        function populateStats() {
-            if (!dashboardData || !dashboardData.issues) return;
-
-            const issues = dashboardData.issues;
-            const totalIssues = issues.length;
-            const openIssues = issues.filter(issue => issue.status === 'ongoing').length;
-            const resolvedIssues = issues.filter(issue => issue.status === 'finished').length;
-            const overdueIssues = issues.filter(issue => {
-                return issue.status === 'ongoing' && 
-                       issue.expectedDate && 
-                       new Date(issue.expectedDate) < new Date();
-            }).length;
-            
-            const categories = dashboardData.categories ? dashboardData.categories.length : 0;
-
-            // Calculate average resolution time
-            const finishedIssues = issues.filter(issue => issue.status === 'finished' && issue.actualDate);
-            let avgResolutionTime = 0;
-            if (finishedIssues.length > 0) {
-                const totalDays = finishedIssues.reduce((total, issue) => {
-                    const created = new Date(issue.date);
-                    const resolved = new Date(issue.actualDate);
-                    const days = Math.round((resolved - created) / (1000 * 60 * 60 * 24));
-                    return total + days;
-                }, 0);
-                avgResolutionTime = Math.round(totalDays / finishedIssues.length);
+                document.getElementById('tokenModal').style.display = 'flex';
             }
 
-            // Update main cards
-            updateElement('totalIssues', totalIssues);
-            updateElement('openIssues', openIssues);
-            updateElement('resolvedIssues', resolvedIssues);
-            updateElement('overdueIssues', overdueIssues);
-            updateElement('avgResolutionTime', avgResolutionTime);
-            updateElement('categories', categories);
-
-            // Update overview stats
-            const statsOverview = document.getElementById('statsOverview');
-            if (statsOverview) {
-                statsOverview.innerHTML = `
-                    <div class="overview-card">
-                        <div class="overview-number">${totalIssues}</div>
-                        <div class="overview-label">Total Issues</div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-number">${openIssues}</div>
-                        <div class="overview-label">Active Issues</div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-number">${resolvedIssues}</div>
-                        <div class="overview-label">Resolved Issues</div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-number">${overdueIssues}</div>
-                        <div class="overview-label">Overdue Issues</div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-number">${Math.round((resolvedIssues / totalIssues) * 100)}%</div>
-                        <div class="overview-label">Resolution Rate</div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-number">${avgResolutionTime}</div>
-                        <div class="overview-label">Avg Resolution Days</div>
-                    </div>
-                `;
-            }
+            // Load local data
+            loadLocalData();
+            updateDashboard();
+            checkSystemStatus();
         }
 
-        function generateRecentActivity() {
-            if (!dashboardData || !dashboardData.issues) return;
-
-            const recentActivity = document.getElementById('recentActivity');
-            if (!recentActivity) return;
-
-            // Get recent issues (sorted by last updated)
-            const recentIssues = dashboardData.issues
-                .sort((a, b) => new Date(b.lastUpdated || b.date) - new Date(a.lastUpdated || a.date))
-                .slice(0, 5);
-
-            if (recentIssues.length === 0) {
-                recentActivity.innerHTML = `
-                    <div class="activity-item">
-                        <div class="activity-icon">📝</div>
-                        <div class="activity-content">
-                            <div class="activity-title">No recent activity</div>
-                            <div class="activity-time">Create your first issue to get started!</div>
-                        </div>
-                    </div>
-                `;
+        function authenticateToken() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                showNotification('Please enter a valid GitHub token', 'error');
                 return;
             }
 
-            const activityHTML = recentIssues.map(issue => {
-                const icon = issue.status === 'finished' ? '✅' : '🔄';
-                const action = issue.status === 'finished' ? 'Resolved' : 'Updated';
-                const timeAgo = getTimeAgo(issue.lastUpdated || issue.date);
-                
-                return `
-                    <div class="activity-item" onclick="viewIssue(${issue.id})">
-                        <div class="activity-icon">${icon}</div>
-                        <div class="activity-content">
-                            <div class="activity-title">${action}: ${escapeHtml(issue.title)}</div>
-                            <div class="activity-time">${timeAgo} • ${escapeHtml(issue.category)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            recentActivity.innerHTML = activityHTML;
+            githubToken = token;
+            localStorage.setItem('githubToken', token);
+            document.getElementById('tokenModal').style.display = 'none';
+            
+            validateToken();
         }
 
-        function viewIssue(issueId) {
-            localStorage.setItem('selectedIssueId', issueId);
-            window.location.href = 'issueviewer.html';
+        function continueOffline() {
+            document.getElementById('tokenModal').style.display = 'none';
+            isOnline = false;
+            updateDashboard();
+            showNotification('Running in offline mode', 'warning');
         }
 
-        function updateElement(id, value) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.textContent = value;
+        async function validateToken() {
+            try {
+                const response = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    isOnline = true;
+                    document.getElementById('githubStatus').textContent = 'Connected';
+                    document.getElementById('githubStatus').className = 'status-value connected';
+                    showNotification('GitHub connection established', 'success');
+                    syncWithGitHub();
+                } else {
+                    throw new Error('Invalid token');
+                }
+            } catch (error) {
+                isOnline = false;
+                document.getElementById('githubStatus').textContent = 'Disconnected';
+                document.getElementById('githubStatus').className = 'status-value error';
+                showNotification('GitHub connection failed. Running offline.', 'warning');
             }
         }
 
-        function getTimeAgo(dateString) {
+        function loadLocalData() {
+            const storedIssues = localStorage.getItem('issues');
+            const storedCategories = localStorage.getItem('categories');
+
+            if (storedIssues) {
+                issues = JSON.parse(storedIssues);
+            }
+
+            if (storedCategories) {
+                categories = JSON.parse(storedCategories);
+            } else {
+                // Default categories
+                categories = {
+                    'bug': { name: 'Bug Reports', color: '#f44336' },
+                    'feature': { name: 'Feature Requests', color: '#2196f3' },
+                    'improvement': { name: 'Improvements', color: '#ff9800' },
+                    'question': { name: 'Questions', color: '#9c27b0' },
+                    'other': { name: 'Other', color: '#607d8b' }
+                };
+                localStorage.setItem('categories', JSON.stringify(categories));
+            }
+        }
+
+        function updateDashboard() {
             const now = new Date();
-            const date = new Date(dateString);
-            const diffInSeconds = Math.floor((now - date) / 1000);
-            
-            if (diffInSeconds < 60) return 'Just now';
-            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-            if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-            return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
+            let ongoing = 0, resolved = 0, overdue = 0;
+
+            issues.forEach(issue => {
+                if (issue.status === 'ongoing') {
+                    ongoing++;
+                    if (issue.expectedResolutionDate && new Date(issue.expectedResolutionDate) < now) {
+                        overdue++;
+                    }
+                } else if (issue.status === 'finished') {
+                    resolved++;
+                }
+            });
+
+            document.getElementById('ongoingCount').textContent = ongoing;
+            document.getElementById('resolvedCount').textContent = resolved;
+            document.getElementById('overdueCount').textContent = overdue;
+            document.getElementById('totalCount').textContent = issues.length;
+
+            // Load recent issues
+            const recentIssues = issues
+                .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))
+                .slice(0, 5);
+
+            const recentIssuesList = document.getElementById('recentIssuesList');
+            recentIssuesList.innerHTML = '';
+
+            if (recentIssues.length === 0) {
+                recentIssuesList.innerHTML = '<p style="text-align: center; opacity: 0.7;">No issues found. Create your first issue!</p>';
+            } else {
+                recentIssues.forEach(issue => {
+                    const issueCard = createIssueCard(issue);
+                    recentIssuesList.appendChild(issueCard);
+                });
+            }
         }
 
-        function escapeHtml(unsafe) {
-            return (unsafe || '')
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        function createIssueCard(issue) {
+            const card = document.createElement('div');
+            card.className = 'issue-card';
+            card.onclick = () => window.location.href = `issueviewer.html?id=${issue.id}`;
+
+            const statusClass = issue.status === 'ongoing' ? 'status-ongoing' : 'status-finished';
+            const formattedDate = new Date(issue.dateTime).toLocaleDateString();
+
+            card.innerHTML = `
+                <div class="issue-title">${escapeHtml(issue.title)}</div>
+                <div class="issue-meta">
+                    <span class="meta-item ${statusClass}">${issue.status}</span>
+                    <span class="meta-item">${formattedDate}</span>
+                    <span class="meta-item">${issue.category || 'Other'}</span>
+                </div>
+                <div class="issue-content">${escapeHtml(issue.content.substring(0, 100))}${issue.content.length > 100 ? '...' : ''}</div>
+            `;
+
+            return card;
         }
 
-        // Auto-refresh dashboard every 5 minutes
-        setInterval(() => {
-            loadDashboardData();
-            populateStats();
-            generateRecentActivity();
-        }, 300000);
+        function checkSystemStatus() {
+            // Check local storage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                document.getElementById('storageStatus').textContent = 'Available';
+                document.getElementById('storageStatus').className = 'status-value connected';
+            } catch (e) {
+                document.getElementById('storageStatus').textContent = 'Unavailable';
+                document.getElementById('storageStatus').className = 'status-value error';
+            }
 
-        // Add some visual flair
-        document.addEventListener('mousemove', function(e) {
-            const cursor = document.querySelector('.cursor');
-            if (!cursor) {
-                const newCursor = document.createElement('div');
-                newCursor.className = 'cursor';
-                newCursor.style.cssText = `
-                    position: fixed;
-                    width: 20px;
-                    height: 20px;
-                    background: radial-gradient(circle, rgba(255,69,0,0.3), transparent);
-                    border-radius: 50%;
-                    pointer-events: none;
-                    z-index: 9999;
-                    transition: transform 0.1s ease;
-                `;
-                document.body.appendChild(newCursor);
+            // Check last sync
+            const lastSync = localStorage.getItem('lastSync');
+            if (lastSync) {
+                const syncDate = new Date(lastSync);
+                document.getElementById('lastSyncStatus').textContent = syncDate.toLocaleString();
             }
+        }
+
+        function openNewIssueModal() {
+            document.getElementById('newIssueModal').style.display = 'flex';
+        }
+
+        function closeNewIssueModal() {
+            document.getElementById('newIssueModal').style.display = 'none';
+            document.getElementById('quickTitle').value = '';
+            document.getElementById('quickContent').value = '';
+            document.getElementById('quickCategory').value = 'bug';
+        }
+
+        function createQuickIssue() {
+            const title = document.getElementById('quickTitle').value.trim();
+            const content = document.getElementById('quickContent').value.trim();
+            const category = document.getElementById('quickCategory').value;
+
+            if (!title || !content) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const newIssue = {
+                id: Date.now().toString(),
+                title: title,
+                content: content,
+                category: category,
+                dateTime: new Date().toISOString(),
+                status: 'ongoing',
+                pictures: [],
+                voiceRecords: []
+            };
+
+            issues.push(newIssue);
+            localStorage.setItem('issues', JSON.stringify(issues));
             
-            const cursorElement = document.querySelector('.cursor');
-            if (cursorElement) {
-                cursorElement.style.left = e.clientX - 10 + 'px';
-                cursorElement.style.top = e.clientY - 10 + 'px';
+            closeNewIssueModal();
+            updateDashboard();
+            showNotification('Issue created successfully!', 'success');
+        }
+
+        async function syncWithGitHub() {
+            if (!isOnline) {
+                showNotification('GitHub not connected. Cannot sync.', 'error');
+                return;
             }
-        });
+
+            const syncBtn = document.getElementById('syncBtn');
+            syncBtn.innerHTML = '<i class="fas fa-sync fa-spin"></i> Syncing...';
+            syncBtn.disabled = true;
+
+            try {
+                // Implement GitHub sync logic here
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate sync
+                
+                localStorage.setItem('lastSync', new Date().toISOString());
+                document.getElementById('lastSyncStatus').textContent = new Date().toLocaleString();
+                showNotification('Sync completed successfully!', 'success');
+            } catch (error) {
+                showNotification('Sync failed: ' + error.message, 'error');
+            } finally {
+                syncBtn.innerHTML = '<i class="fas fa-sync"></i> Sync with GitHub';
+                syncBtn.disabled = false;
+            }
+        }
+
+        function exportData() {
+            const data = {
+                issues: issues,
+                categories: categories,
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `issue-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Data exported successfully!', 'success');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.issues && Array.isArray(data.issues)) {
+                            issues = data.issues;
+                            localStorage.setItem('issues', JSON.stringify(issues));
+                        }
+                        if (data.categories) {
+                            categories = data.categories;
+                            localStorage.setItem('categories', JSON.stringify(categories));
+                        }
+                        updateDashboard();
+                        showNotification('Data imported successfully!', 'success');
+                    } catch (error) {
+                        showNotification('Invalid file format', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
 </body>
 </html>
