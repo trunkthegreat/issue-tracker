@@ -1,1 +1,29 @@
-
+{
+  "categories": [
+    {
+      "id": "general",
+      "name": "General",
+      "description": "General issues"
+    },
+    {
+      "id": "bug",
+      "name": "Bug",
+      "description": "Software bugs"
+    },
+    {
+      "id": "feature",
+      "name": "Feature Request",
+      "description": "New feature requests"
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "description": "Documentation issues"
+    },
+    {
+      "id": "support",
+      "name": "Support",
+      "description": "Support requests"
+    }
+  ]
+}
