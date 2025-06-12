@@ -1,0 +1,521 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-06-12T10:30:00Z",
+    "totalIssues": 8,
+    "activeCategories": 6,
+    "description": "Issue Tracker Database - Hierarchical structure for routing and categorization"
+  },
+  "categories": [
+    {
+      "id": 1,
+      "name": "Bug Reports",
+      "description": "Software bugs and technical defects",
+      "color": "#ff4500",
+      "icon": "🐛",
+      "priority": "high",
+      "parent": null,
+      "subcategories": [
+        {
+          "id": 11,
+          "name": "UI/UX Bugs",
+          "description": "User interface and experience issues"
+        },
+        {
+          "id": 12,
+          "name": "Backend Bugs",
+          "description": "Server-side and database issues"
+        },
+        {
+          "id": 13,
+          "name": "Mobile Bugs",
+          "description": "Mobile application specific bugs"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Feature Requests",
+      "description": "New feature proposals and enhancements",
+      "color": "#228b22",
+      "icon": "✨",
+      "priority": "medium",
+      "parent": null,
+      "subcategories": [
+        {
+          "id": 21,
+          "name": "User Interface",
+          "description": "UI improvements and new interface elements"
+        },
+        {
+          "id": 22,
+          "name": "Performance",
+          "description": "Performance enhancements and optimizations"
+        },
+        {
+          "id": 23,
+          "name": "Integration",
+          "description": "Third-party integrations and API features"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Technical Issues",
+      "description": "Infrastructure and system-related problems",
+      "color": "#ff6347",
+      "icon": "⚙️",
+      "priority": "high",
+      "parent": null,
+      "subcategories": [
+        {
+          "id": 31,
+          "name": "Server Issues",
+          "description": "Server downtime and configuration problems"
+        },
+        {
+          "id": 32,
+          "name": "Database Issues",
+          "description": "Database connectivity and performance issues"
+        },
+        {
+          "id": 33,
+          "name": "Security Issues",
+          "description": "Security vulnerabilities and access problems"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "User Support",
+      "description": "User assistance and training requests",
+      "color": "#4169e1",
+      "icon": "🤝",
+      "priority": "medium",
+      "parent": null,
+      "subcategories": [
+        {
+          "id": 41,
+          "name": "Account Issues",
+          "description": "User account and authentication problems"
+        },
+        {
+          "id": 42,
+          "name": "Training Requests",
+          "description": "User training and documentation requests"
+        },
+        {
+          "id": 43,
+          "name": "General Inquiries",
+          "description": "General questions and information requests"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Documentation",
+      "description": "Documentation updates and improvements",
+      "color": "#9932cc",
+      "icon": "📚",
+      "priority": "low",
+      "parent": null,
+      "subcategories": [
+        {
+          "id": 51,
+          "name": "User Guides",
+          "description": "User manual and guide updates"
+        },
+        {
+          "id": 52,
+          "name": "API Documentation",
+          "description": "API reference and developer documentation"
+        },
+        {
+          "id": 53,
+          "name": "Video Tutorials",
+          "description": "Video content and tutorial creation"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Maintenance",
+      "description": "Scheduled maintenance and updates",
+      "color": "#ffa500",
+      "icon": "🔧",
+      "priority": "medium",
+      "parent": null,
+      "subcategories": [
+        {
+          "id": 61,
+          "name": "Routine Maintenance",
+          "description": "Regular system maintenance tasks"
+        },
+        {
+          "id": 62,
+          "name": "Software Updates",
+          "description": "Software version updates and patches"
+        },
+        {
+          "id": 63,
+          "name": "Hardware Maintenance",
+          "description": "Hardware maintenance and replacements"
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "id": 1001,
+      "title": "Login Page Not Responsive on Mobile Devices",
+      "category": "Bug Reports",
+      "subcategory": "UI/UX Bugs",
+      "date": "2024-06-10T09:15:00Z",
+      "content": "Users are reporting that the login page is not properly responsive on mobile devices. The form elements are overlapping and the submit button is partially hidden on screens smaller than 768px. This affects user experience significantly, especially for mobile-first users. Multiple browsers tested including Chrome Mobile, Safari iOS, and Firefox Mobile.",
+      "resolutionMethod": "Update CSS media queries for mobile breakpoints. Implement flexbox layout for better responsiveness. Test across multiple device sizes.",
+      "expectedDate": "2024-06-15",
+      "actualDate": "",
+      "status": "ongoing",
+      "priority": "high",
+      "assignee": "Frontend Team",
+      "reporter": "User Support Team",
+      "tags": ["mobile", "responsive", "UI", "urgent"],
+      "images": [
+        {
+          "name": "mobile_login_issue.png",
+          "size": 245760,
+          "type": "image/png",
+          "uploadDate": "2024-06-10T09:20:00Z"
+        },
+        {
+          "name": "desktop_comparison.png",
+          "size": 189440,
+          "type": "image/png",
+          "uploadDate": "2024-06-10T09:21:00Z"
+        }
+      ],
+      "audio": {
+        "name": "user_feedback_recording.wav",
+        "size": 2097152,
+        "type": "audio/wav",
+        "uploadDate": "2024-06-10T09:25:00Z",
+        "duration": "00:03:45"
+      },
+      "lastUpdated": "2024-06-11T14:30:00Z",
+      "estimatedHours": 8,
+      "actualHours": 0
+    },
+    {
+      "id": 1002,
+      "title": "Implement Dark Mode Theme",
+      "category": "Feature Requests",
+      "subcategory": "User Interface",
+      "date": "2024-06-08T14:20:00Z",
+      "content": "Multiple users have requested a dark mode theme for the application. This would improve user experience during evening hours and reduce eye strain. The dark mode should be toggleable and remember user preference across sessions. Should include proper contrast ratios for accessibility compliance.",
+      "resolutionMethod": "Create CSS variables for theme colors. Implement theme switcher component. Add localStorage persistence for user preference. Ensure WCAG compliance for color contrast.",
+      "expectedDate": "2024-06-20",
+      "actualDate": "2024-06-12",
+      "status": "finished",
+      "priority": "medium",
+      "assignee": "UI/UX Team",
+      "reporter": "Product Manager",
+      "tags": ["enhancement", "UI", "accessibility", "user-request"],
+      "images": [
+        {
+          "name": "dark_mode_mockup.png",
+          "size": 312580,
+          "type": "image/png",
+          "uploadDate": "2024-06-08T14:25:00Z"
+        },
+        {
+          "name": "theme_switcher_design.png",
+          "size": 156290,
+          "type": "image/png",
+          "uploadDate": "2024-06-08T14:26:00Z"
+        }
+      ],
+      "audio": null,
+      "lastUpdated": "2024-06-12T16:45:00Z",
+      "estimatedHours": 16,
+      "actualHours": 14
+    },
+    {
+      "id": 1003,
+      "title": "Database Connection Timeout Issues",
+      "category": "Technical Issues",
+      "subcategory": "Database Issues",
+      "date": "2024-06-11T08:30:00Z",
+      "content": "Intermittent database connection timeouts occurring during peak hours (9 AM - 11 AM and 2 PM - 4 PM). Affects approximately 15% of user sessions. Error logs show connection pool exhaustion. Server monitoring indicates high CPU usage during these periods.",
+      "resolutionMethod": "Increase database connection pool size. Optimize slow queries identified in analysis. Implement connection retry logic with exponential backoff. Consider database server upgrade.",
+      "expectedDate": "2024-06-18",
+      "actualDate": "",
+      "status": "ongoing",
+      "priority": "high",
+      "assignee": "Backend Team",
+      "reporter": "DevOps Team",
+      "tags": ["database", "performance", "infrastructure", "critical"],
+      "images": [
+        {
+          "name": "cpu_usage_graph.png",
+          "size": 198750,
+          "type": "image/png",
+          "uploadDate": "2024-06-11T08:35:00Z"
+        }
+      ],
+      "audio": {
+        "name": "team_discussion_solution.wav",
+        "size": 3145728,
+        "type": "audio/wav",
+        "uploadDate": "2024-06-11T10:15:00Z",
+        "duration": "00:05:20"
+      },
+      "lastUpdated": "2024-06-12T11:20:00Z",
+      "estimatedHours": 24,
+      "actualHours": 8
+    },
+    {
+      "id": 1004,
+      "title": "User Cannot Reset Password",
+      "category": "User Support",
+      "subcategory": "Account Issues",
+      "date": "2024-06-09T13:45:00Z",
+      "content": "User John Doe (email: johndoe@example.com) reports being unable to reset password. Reset email is not being received despite multiple attempts. Email address verified as correct. User's account status appears normal in admin panel.",
+      "resolutionMethod": "Check email delivery logs and spam filters. Verify SMTP configuration. Reset user password manually and investigate email delivery service issues.",
+      "expectedDate": "2024-06-10",
+      "actualDate": "2024-06-09",
+      "status": "finished",
+      "priority": "medium",
+      "assignee": "Support Team",
+      "reporter": "Customer Service",
+      "tags": ["account", "password", "email", "user-support"],
+      "images": [],
+      "audio": null,
+      "lastUpdated": "2024-06-09T17:30:00Z",
+      "estimatedHours": 2,
+      "actualHours": 1.5
+    },
+    {
+      "id": 1005,
+      "title": "API Rate Limiting Documentation Update",
+      "category": "Documentation",
+      "subcategory": "API Documentation",
+      "date": "2024-06-07T16:10:00Z",
+      "content": "Current API documentation does not clearly explain the rate limiting policy. Developers are confused about request limits, time windows, and error responses. Need comprehensive documentation with examples and best practices.",
+      "resolutionMethod": "Update API documentation with detailed rate limiting section. Include code examples in multiple languages. Add troubleshooting guide for common rate limit scenarios.",
+      "expectedDate": "2024-06-14",
+      "actualDate": "",
+      "status": "ongoing",
+      "priority": "low",
+      "assignee": "Technical Writing Team",
+      "reporter": "Developer Relations",
+      "tags": ["documentation", "API", "rate-limiting", "developer-experience"],
+      "images": [
+        {
+          "name": "current_api_docs.png",
+          "size": 145890,
+          "type": "image/png",
+          "uploadDate": "2024-06-07T16:15:00Z"
+        }
+      ],
+      "audio": null,
+      "lastUpdated": "2024-06-11T09:45:00Z",
+      "estimatedHours": 6,
+      "actualHours": 2
+    },
+    {
+      "id": 1006,
+      "title": "Scheduled Server Maintenance - June 15th",
+      "category": "Maintenance",
+      "subcategory": "Routine Maintenance",
+      "date": "2024-06-05T10:00:00Z",
+      "content": "Scheduled server maintenance to apply security patches and perform routine system updates. Maintenance window: June 15th, 2024, from 2:00 AM to 6:00 AM EST. Expected downtime: 2-3 hours. All users will be notified 48 hours in advance.",
+      "resolutionMethod": "Create maintenance notification for users. Prepare rollback plan. Coordinate with all teams. Apply security patches and system updates during maintenance window.",
+      "expectedDate": "2024-06-15",
+      "actualDate": "",
+      "status": "ongoing",
+      "priority": "medium",
+      "assignee": "DevOps Team",
+      "reporter": "System Administrator",
+      "tags": ["maintenance", "security", "updates", "scheduled"],
+      "images": [],
+      "audio": null,
+      "lastUpdated": "2024-06-12T08:15:00Z",
+      "estimatedHours": 4,
+      "actualHours": 0
+    },
+    {
+      "id": 1007,
+      "title": "Search Function Returns Incorrect Results",
+      "category": "Bug Reports",
+      "subcategory": "Backend Bugs",
+      "date": "2024-06-12T11:30:00Z",
+      "content": "The search function is returning incorrect or incomplete results for queries containing special characters and non-English text. Particularly affects searches in Chinese, Japanese, and Arabic languages. Unicode handling appears to be the root cause.",
+      "resolutionMethod": "Review search indexing for proper Unicode support. Update search algorithm to handle special characters. Implement proper text normalization. Add comprehensive test cases for international characters.",
+      "expectedDate": "2024-06-25",
+      "actualDate": "",
+      "status": "ongoing",
+      "priority": "high",
+      "assignee": "Backend Team",
+      "reporter": "QA Team",
+      "tags": ["search", "unicode", "internationalization", "backend"],
+      "images": [
+        {
+          "name": "search_results_chinese.png",
+          "size": 267840,
+          "type": "image/png",
+          "uploadDate": "2024-06-12T11:35:00Z"
+        },
+        {
+          "name": "search_results_arabic.png",
+          "size": 234560,
+          "type": "image/png",
+          "uploadDate": "2024-06-12T11:36:00Z"
+        }
+      ],
+      "audio": {
+        "name": "bug_reproduction_steps.wav",
+        "size": 1572864,
+        "type": "audio/wav",
+        "uploadDate": "2024-06-12T11:40:00Z",
+        "duration": "00:02:30"
+      },
+      "lastUpdated": "2024-06-12T14:15:00Z",
+      "estimatedHours": 20,
+      "actualHours": 4
+    },
+    {
+      "id": 1008,
+      "title": "Create Video Tutorial for New Dashboard",
+      "category": "Documentation",
+      "subcategory": "Video Tutorials",
+      "date": "2024-06-06T15:20:00Z",
+      "content": "Create a comprehensive video tutorial demonstrating the new dashboard features released in version 2.5. Should cover navigation, customization options, and advanced features. Target audience: existing users upgrading from previous version.",
+      "resolutionMethod": "Script and storyboard the tutorial. Record screen capture with voiceover. Edit video with callouts and annotations. Upload to learning platform and embed in help documentation.",
+      "expectedDate": "2024-06-20",
+      "actualDate": "2024-06-11",
+      "status": "finished",
+      "priority": "low",
+      "assignee": "Content Team",
+      "reporter": "Training Department",
+      "tags": ["video", "tutorial", "dashboard", "training"],
+      "images": [
+        {
+          "name": "video_storyboard.png",
+          "size": 445670,
+          "type": "image/png",
+          "uploadDate": "2024-06-06T15:25:00Z"
+        },
+        {
+          "name": "tutorial_thumbnail.png",
+          "size": 123890,
+          "type": "image/png",
+          "uploadDate": "2024-06-11T10:15:00Z"
+        }
+      ],
+      "audio": {
+        "name": "tutorial_voiceover_draft.wav",
+        "size": 4194304,
+        "type": "audio/wav",
+        "uploadDate": "2024-06-08T14:30:00Z",
+        "duration": "00:07:15"
+      },
+      "lastUpdated": "2024-06-11T16:50:00Z",
+      "estimatedHours": 12,
+      "actualHours": 10
+    }
+  ],
+  "statistics": {
+    "totalIssues": 8,
+    "openIssues": 5,
+    "closedIssues": 3,
+    "overdueIssues": 1,
+    "avgResolutionTime": 4.5,
+    "categoriesBreakdown": {
+      "Bug Reports": 2,
+      "Feature Requests": 1,
+      "Technical Issues": 1,
+      "User Support": 1,
+      "Documentation": 2,
+      "Maintenance": 1
+    },
+    "monthlyTrends": {
+      "issuesCreated": [
+        {"month": "2024-04", "count": 12},
+        {"month": "2024-05", "count": 18},
+        {"month": "2024-06", "count": 8}
+      ],
+      "issuesResolved": [
+        {"month": "2024-04", "count": 10},
+        {"month": "2024-05", "count": 15},
+        {"month": "2024-06", "count": 3}
+      ]
+    }
+  },
+  "configuration": {
+    "defaultPriority": "medium",
+    "autoAssignment": true,
+    "emailNotifications": true,
+    "slaDays": {
+      "high": 3,
+      "medium": 7,
+      "low": 14
+    },
+    "allowedFileTypes": ["png", "jpg", "jpeg", "gif", "pdf", "doc", "docx", "mp3", "wav", "mp4"],
+    "maxFileSize": 10485760,
+    "workingHours": {
+      "start": "09:00",
+      "end": "17:00",
+      "timezone": "EST"
+    },
+    "escalationRules": {
+      "overdue": true,
+      "highPriorityAlert": true,
+      "managementNotification": true
+    }
+  },
+  "userRoles": [
+    {
+      "id": 1,
+      "name": "Administrator",
+      "permissions": ["create", "read", "update", "delete", "assign", "configure"]
+    },
+    {
+      "id": 2,
+      "name": "Manager",
+      "permissions": ["create", "read", "update", "assign", "report"]
+    },
+    {
+      "id": 3,
+      "name": "Developer",
+      "permissions": ["create", "read", "update", "comment"]
+    },
+    {
+      "id": 4,
+      "name": "Support Agent",
+      "permissions": ["create", "read", "update", "comment"]
+    },
+    {
+      "id": 5,
+      "name": "Reporter",
+      "permissions": ["create", "read", "comment"]
+    }
+  ],
+  "integrations": {
+    "github": {
+      "enabled": true,
+      "repository": "trunkthegreat/issue-tracker",
+      "branch": "main",
+      "autoSync": true
+    },
+    "slack": {
+      "enabled": false,
+      "webhookUrl": "",
+      "notifications": ["high-priority", "overdue"]
+    },
+    "email": {
+      "enabled": true,
+      "smtpServer": "smtp.company.com",
+      "notifications": ["assignment", "status-change", "due-date"]
+    }
+  }
+}

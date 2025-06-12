@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Tracker - Reports</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid var(--fire-orange);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--jungle-green);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--brick-red);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid var(--fire-orange);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--brick-red);
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .report-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .issues-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .issues-table th,
+        .issues-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid var(--fire-orange);
+        }
+
+        .issues-table th {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .issues-table tr:hover {
+            background: rgba(255, 99, 71, 0.1);
+        }
+
+        .resolution-time {
+            font-weight: bold;
+        }
+
+        .resolution-time.fast {
+            color: var(--jungle-green);
+        }
+
+        .resolution-time.medium {
+            color: var(--fire-orange);
+        }
+
+        .resolution-time.slow {
+            color: var(--brick-red);
+        }
+
+        .export-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .performance-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .performance-excellent {
+            background: rgba(34, 139, 34, 0.2);
+            border: 2px solid var(--jungle-green);
+            color: var(--jungle-green);
+        }
+
+        .performance-good {
+            background: rgba(255, 99, 71, 0.2);
+            border: 2px solid var(--fire-orange);
+            color: var(--fire-orange);
+        }
+
+        .performance-poor {
+            background: rgba(178, 34, 34, 0.2);
+            border: 2px solid var(--brick-red);
+            color: var(--brick-red);
+        }
+
+        .trend-arrow {
+            font-size: 1.5rem;
+        }
+
+        .trend-up {
+            color: var(--jungle-green);
+        }
+
+        .trend-down {
+            color: var(--brick-red);
+        }
+
+        .trend-stable {
+            color: var(--fire-orange);
+        }
+
+        .progress-chart {
+            margin: 20px 0;
+        }
+
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            margin: 0 15px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--fire-red), var(--fire-orange));
+            transition: width 0.8s ease;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .report-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-range {
+                justify-content: space-between;
+            }
+            
+            .issues-table {
+                font-size: 14px;
+            }
+            
+            .issues-table th,
+            .issues-table td {
+                padding: 10px 8px;
+            }
+            
+            .export-section {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-number {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Issue Reports</h1>
+            <p>Comprehensive Analysis & Performance Metrics</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="glass-card">
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="window.open('issuelogger.html', '_blank')" class="btn">📝 Issue Logger</button>
+                <button onclick="location.reload()" class="btn">🔄 Refresh Report</button>
+                <button onclick="window.open('issueviewer.html', '_blank')" class="btn">👁️ Issue Viewer</button>
+                <button onclick="window.print()" class="btn">🖨️ Print Report</button>
+            </div>
+        </div>
+
+        <!-- Report Filters -->
+        <div class="glass-card">
+            <div class="report-filters">
+                <div class="date-range">
+                    <label class="form-label" style="margin: 0;">Date Range:</label>
+                    <input type="date" id="startDate" class="form-input" style="width: auto;" />
+                    <span style="color: white; font-weight: bold;">to</span>
+                    <input type="date" id="endDate" class="form-input" style="width: auto;" />
+                </div>
+                <select id="categoryFilter" class="form-select" style="width: auto;" onchange="filterReports()">
+                    <option value="">All Categories</option>
+                </select>
+                <button onclick="filterReports()" class="btn">Apply Filters</button>
+                <button onclick="resetFilters()" class="btn">Reset</button>
+            </div>
+        </div>
+
+        <!-- Key Statistics -->
+        <div class="glass-card">
+            <h2 class="text-white text-center mb-25">🎯 KEY PERFORMANCE INDICATORS</h2>
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Performance Trends -->
+        <div class="glass-card">
+            <h2 class="text-white text-center mb-25">📈 PERFORMANCE TRENDS</h2>
+            <div id="performanceIndicators">
+                <!-- Performance indicators will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Category Performance -->
+        <div class="glass-card">
+            <h2 class="text-white text-center mb-25">📋 CATEGORY PERFORMANCE</h2>
+            <div class="progress-chart" id="categoryChart">
+                <!-- Category progress bars will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Recent Resolutions -->
+        <div class="glass-card">
+            <h2 class="text-white text-center mb-25">✅ RECENT RESOLUTIONS</h2>
+            <div style="overflow-x: auto;">
+                <table class="issues-table" id="recentResolutions">
+                    <thead>
+                        <tr>
+                            <th>Issue Title</th>
+                            <th>Category</th>
+                            <th>Resolution Date</th>
+                            <th>Resolution Time</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resolutionsTableBody">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- All Closed Issues -->
+        <div class="glass-card">
+            <h2 class="text-white text-center mb-25">📁 ALL CLOSED ISSUES</h2>
+            <div style="overflow-x: auto;">
+                <table class="issues-table" id="allClosedIssues">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Created</th>
+                            <th>Resolved</th>
+                            <th>Duration</th>
+                            <th>Resolution Method</th>
+                        </tr>
+                    </thead>
+                    <tbody id="closedIssuesTableBody">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="glass-card">
+            <h2 class="text-white text-center mb-25">📤 EXPORT OPTIONS</h2>
+            <div class="export-section">
+                <button onclick="exportToCSV()" class="btn">📄 Export CSV</button>
+                <button onclick="exportToJSON()" class="btn">📋 Export JSON</button>
+                <button onclick="generatePDF()" class="btn">📃 Generate PDF</button>
+                <button onclick="emailReport()" class="btn">📧 Email Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allIssues = [];
+        let filteredIssues = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            initializeDateFilters();
+            generateReport();
+        });
+
+        function loadData() {
+            const data = localStorage.getItem('issueTrackerData');
+            if (data) {
+                const parsed = JSON.parse(data);
+                allIssues = parsed.issues || [];
+                filteredIssues = [...allIssues];
+                loadCategories();
+            } else {
+                allIssues = [];
+                filteredIssues = [];
+            }
+        }
+
+        function loadCategories() {
+            const data = JSON.parse(localStorage.getItem('issueTrackerData'));
+            const categories = data.categories || [];
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = category.name;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        function initializeDateFilters() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 3); // Default to last 3 months
+            
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        }
+
+        function filterReports() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            filteredIssues = allIssues.filter(issue => {
+                let passesFilter = true;
+                
+                if (startDate) {
+                    passesFilter = passesFilter && new Date(issue.date) >= new Date(startDate);
+                }
+                
+                if (endDate) {
+                    passesFilter = passesFilter && new Date(issue.date) <= new Date(endDate + 'T23:59:59');
+                }
+                
+                if (category) {
+                    passesFilter = passesFilter && issue.category === category;
+                }
+                
+                return passesFilter;
+            });
+            
+            generateReport();
+        }
+
+        function resetFilters() {
+            initializeDateFilters();
+            document.getElementById('categoryFilter').value = '';
+            filteredIssues = [...allIssues];
+            generateReport();
+        }
+
+        function generateReport() {
+            generateStats();
+            generatePerformanceIndicators();
+            generateCategoryChart();
+            generateRecentResolutions();
+            generateAllClosedIssues();
+        }
+
+        function generateStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            const closedIssues = filteredIssues.filter(issue => issue.status === 'finished');
+            const ongoingIssues = filteredIssues.filter(issue => issue.status === 'ongoing');
+            const overdueIssues = ongoingIssues.filter(issue => {
+                return issue.expectedDate && new Date(issue.expectedDate) < new Date();
+            });
+
+            const totalResolutionTime = closedIssues.reduce((total, issue) => {
+                if (issue.actualDate) {
+                    const created = new Date(issue.date);
+                    const resolved = new Date(issue.actualDate);
+                    return total + (resolved - created);
+                }
+                return total;
+            }, 0);
+
+            const avgResolutionTime = closedIssues.length > 0 ? totalResolutionTime / closedIssues.length : 0;
+            const avgDays = Math.round(avgResolutionTime / (1000 * 60 * 60 * 24));
+
+            const resolutionRate = filteredIssues.length > 0 ? 
+                Math.round((closedIssues.length / filteredIssues.length) * 100) : 0;
+
+            const stats = [
+                {
+                    number: filteredIssues.length,
+                    label: 'Total Issues',
+                    icon: '📋'
+                },
+                {
+                    number: closedIssues.length,
+                    label: 'Resolved Issues',
+                    icon: '✅'
+                },
+                {
+                    number: ongoingIssues.length,
+                    label: 'Ongoing Issues',
+                    icon: '🔄'
+                },
+                {
+                    number: overdueIssues.length,
+                    label: 'Overdue Issues',
+                    icon: '⚠️'
+                },
+                {
+                    number: `${resolutionRate}%`,
+                    label: 'Resolution Rate',
+                    icon: '🎯'
+                },
+                {
+                    number: avgDays,
+                    label: 'Avg Resolution Days',
+                    icon: '⏱️'
+                }
+            ];
+
+            statsGrid.innerHTML = '';
+            stats.forEach(stat => {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `
+                    <div class="stat-number">${stat.icon} ${stat.number}</div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                statsGrid.appendChild(card);
+            });
+        }
+
+        function generatePerformanceIndicators() {
+            const container = document.getElementById('performanceIndicators');
+            const closedIssues = filteredIssues.filter(issue => issue.status === 'finished');
+            const ongoingIssues = filteredIssues.filter(issue => issue.status === 'ongoing');
+            
+            const currentMonth = new Date().getMonth();
+            const lastMonth = currentMonth - 1;
+            
+            const currentMonthResolved = closedIssues.filter(issue => 
+                new Date(issue.actualDate).getMonth() === currentMonth
+            ).length;
+            
+            const lastMonthResolved = closedIssues.filter(issue => 
+                new Date(issue.actualDate).getMonth() === lastMonth
+            ).length;
+
+            const resolutionTrend = currentMonthResolved > lastMonthResolved ? 'up' : 
+                                   currentMonthResolved < lastMonthResolved ? 'down' : 'stable';
+
+            const overdueRate = ongoingIssues.length > 0 ? 
+                (ongoingIssues.filter(issue => issue.expectedDate && new Date(issue.expectedDate) < new Date()).length / ongoingIssues.length) * 100 : 0;
+
+            const performanceLevel = overdueRate < 10 ? 'excellent' : 
+                                   overdueRate < 25 ? 'good' : 'poor';
+
+            container.innerHTML = `
+                <div class="performance-indicator performance-${performanceLevel}">
+                    <span>📊 Overall Performance: ${performanceLevel.toUpperCase()}</span>
+                    <span>${overdueRate.toFixed(1)}% overdue rate</span>
+                </div>
+                <div class="performance-indicator">
+                    <span>📈 Resolution Trend:</span>
+                    <span class="trend-arrow trend-${resolutionTrend}">
+                        ${resolutionTrend === 'up' ? '↗️' : resolutionTrend === 'down' ? '↘️' : '➡️'}
+                        ${resolutionTrend.toUpperCase()}
+                    </span>
+                </div>
+            `;
+        }
+
+        function generateCategoryChart() {
+            const container = document.getElementById('categoryChart');
+            const categories = {};
+            
+            filteredIssues.forEach(issue => {
+                if (!categories[issue.category]) {
+                    categories[issue.category] = { total: 0, resolved: 0 };
+                }
+                categories[issue.category].total++;
+                if (issue.status === 'finished') {
+                    categories[issue.category].resolved++;
+                }
+            });
+
+            container.innerHTML = '';
+            Object.entries(categories).forEach(([category, data]) => {
+                const percentage = data.total > 0 ? (data.resolved / data.total) * 100 : 0;
+                
+                const item = document.createElement('div');
+                item.className = 'progress-item';
+                item.innerHTML = `
+                    <div style="min-width: 150px; color: white; font-weight: bold;">${category}</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div style="min-width: 100px; text-align: right; color: white; font-weight: bold;">
+                        ${data.resolved}/${data.total} (${percentage.toFixed(1)}%)
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function generateRecentResolutions() {
+            const tbody = document.getElementById('resolutionsTableBody');
+            const recentResolutions = filteredIssues
+                .filter(issue => issue.status === 'finished' && issue.actualDate)
+                .sort((a, b) => new Date(b.actualDate) - new Date(a.actualDate))
+                .slice(0, 10);
+
+            tbody.innerHTML = '';
+            recentResolutions.forEach(issue => {
+                const created = new Date(issue.date);
+                const resolved = new Date(issue.actualDate);
+                const resolutionTime = Math.round((resolved - created) / (1000 * 60 * 60 * 24));
+                
+                const performanceClass = resolutionTime <= 2 ? 'fast' : 
+                                       resolutionTime <= 7 ? 'medium' : 'slow';
+                
+                const performanceText = resolutionTime <= 2 ? '🟢 Excellent' : 
+                                      resolutionTime <= 7 ? '🟡 Good' : '🔴 Needs Improvement';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHtml(issue.title)}</td>
+                    <td>${escapeHtml(issue.category)}</td>
+                    <td>${formatDate(issue.actualDate)}</td>
+                    <td class="resolution-time ${performanceClass}">${resolutionTime} days</td>
+                    <td>${performanceText}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (recentResolutions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #666;">No recent resolutions found</td></tr>';
+            }
+        }
+
+        function generateAllClosedIssues() {
+            const tbody = document.getElementById('closedIssuesTableBody');
+            const closedIssues = filteredIssues
+                .filter(issue => issue.status === 'finished')
+                .sort((a, b) => new Date(b.actualDate) - new Date(a.actualDate));
+
+            tbody.innerHTML = '';
+            closedIssues.forEach(issue => {
+                const created = new Date(issue.date);
+                const resolved = issue.actualDate ? new Date(issue.actualDate) : null;
+                const duration = resolved ? Math.round((resolved - created) / (1000 * 60 * 60 * 24)) : 'N/A';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHtml(issue.title)}</td>
+                    <td>${escapeHtml(issue.category)}</td>
+                    <td>${formatDate(issue.date)}</td>
+                    <td>${issue.actualDate ? formatDate(issue.actualDate) : 'N/A'}</td>
+                    <td>${duration} ${duration !== 'N/A' ? 'days' : ''}</td>
+                    <td>${escapeHtml(issue.resolutionMethod || 'N/A')}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (closedIssues.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #666;">No closed issues found</td></tr>';
+            }
+        }
+
+        function exportToCSV() {
+            const closedIssues = filteredIssues.filter(issue => issue.status === 'finished');
+            let csv = 'Title,Category,Created Date,Resolution Date,Duration (Days),Resolution Method\n';
+            
+            closedIssues.forEach(issue => {
+                const created = new Date(issue.date);
+                const resolved = issue.actualDate ? new Date(issue.actualDate) : null;
+                const duration = resolved ? Math.round((resolved - created) / (1000 * 60 * 60 * 24)) : 'N/A';
+                
+                csv += `"${issue.title}","${issue.category}","${formatDate(issue.date)}","${issue.actualDate ? formatDate(issue.actualDate) : 'N/A'}","${duration}","${issue.resolutionMethod || 'N/A'}"\n`;
+            });
+            
+            downloadFile(csv, 'issue-report.csv', 'text/csv');
+        }
+
+        function exportToJSON() {
+            const closedIssues = filteredIssues.filter(issue => issue.status === 'finished');
+            const jsonData = JSON.stringify(closedIssues, null, 2);
+            downloadFile(jsonData, 'issue-report.json', 'application/json');
+        }
+
+        function generatePDF() {
+            window.print(); // Simple PDF generation via print
+        }
+
+        function emailReport() {
+            const subject = encodeURIComponent('Issue Tracker Report');
+            const body = encodeURIComponent(`Please find the issue tracker report summary:
+
+Total Issues: ${filteredIssues.length}
+Resolved Issues: ${filteredIssues.filter(issue => issue.status === 'finished').length}
+Ongoing Issues: ${filteredIssues.filter(issue => issue.status === 'ongoing').length}
+
+For detailed report, please visit the issue tracker system.`);
+            
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

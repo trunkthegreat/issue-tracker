@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Tracker - Issue Viewer</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .issue-viewer {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .issue-header {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid var(--fire-orange);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .issue-title-large {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--brick-red);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .issue-meta-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .meta-label {
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .meta-value {
+            font-size: 16px;
+            color: var(--brick-red);
+            font-weight: 600;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid var(--fire-orange);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--brick-red);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid var(--fire-orange);
+            padding-bottom: 10px;
+        }
+
+        .content-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--fire-orange);
+        }
+
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .media-item {
+            position: relative;
+            border: 3px solid var(--fire-orange);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .media-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--jungle-green);
+        }
+
+        .media-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .media-placeholder {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+        }
+
+        .media-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .media-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .media-btn:hover {
+            background: rgba(255, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .audio-player {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            color: var(--fire-red);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeline-section {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid var(--fire-orange);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--fire-red), var(--fire-orange));
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 30px 0;
+            padding-left: 80px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 18px;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--fire-orange);
+            border: 4px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--fire-orange);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: var(--fire-orange);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timeline-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--brick-red);
+            margin: 10px 0;
+        }
+
+        .timeline-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .action-bar {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 3px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .edit-mode {
+            background: rgba(34, 139, 34, 0.1);
+            border-color: var(--jungle-green);
+        }
+
+        .edit-form {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .edit-form.active {
+            display: grid;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--fire-orange);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--brick-red);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .quick-btn:hover {
+            background: var(--fire-orange);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .status-change {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-resolved {
+            background: rgba(34, 139, 34, 0.2);
+            border: 2px solid var(--jungle-green);
+            color: var(--jungle-green);
+        }
+
+        .status-reopened {
+            background: rgba(255, 99, 71, 0.2);
+            border: 2px solid var(--fire-orange);
+            color: var(--fire-orange);
+        }
+
+        .media-upload-zone {
+            border: 3px dashed var(--fire-orange);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .media-upload-zone:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--jungle-green);
+        }
+
+        .issue-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border: 2px solid var(--fire-orange);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--brick-red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--fire-orange);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .fullscreen-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: var(--fire-red);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .issue-title-large {
+                font-size: 2rem;
+            }
+            
+            .action-bar {
+                position: static;
+                flex-direction: column;
+            }
+            
+            .issue-meta-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .media-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .timeline-item {
+                padding-left: 60px;
+            }
+            
+            .issue-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container issue-viewer">
+        <!-- Header -->
+        <div class="header">
+            <h1>👁️ Issue Viewer</h1>
+            <p>Detailed Issue Management & Media Handling</p>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar" id="actionBar">
+            <button onclick="toggleEditMode()" class="btn" id="editBtn">✏️ Edit Issue</button>
+            <button onclick="deleteIssue()" class="btn">🗑️ Delete Issue</button>
+            <button onclick="duplicateIssue()" class="btn">📋 Duplicate</button>
+            <button onclick="exportIssue()" class="btn">📤 Export</button>
+            <button onclick="window.open('issuelogger.html', '_blank')" class="btn">📝 New Issue</button>
+            <button onclick="window.open('report.html', '_blank')" class="btn">📊 Reports</button>
+        </div>
+
+        <!-- Issue Navigation -->
+        <div class="glass-card">
+            <div class="issue-navigation">
+                <a href="#" onclick="navigateIssue('prev')" class="nav-btn" id="prevBtn">
+                    ⬅️ Previous Issue
+                </a>
+                <select id="issueSelector" class="form-select" style="width: auto;" onchange="selectIssue()">
+                    <option value="">Select Issue...</option>
+                </select>
+                <a href="#" onclick="navigateIssue('next')" class="nav-btn" id="nextBtn">
+                    Next Issue ➡️
+                </a>
+            </div>
+        </div>
+
+        <!-- Issue Header -->
+        <div class="issue-header" id="issueHeader">
+            <!-- Issue details will be populated by JavaScript -->
+        </div>
+
+        <!-- Edit Form -->
+        <div class="content-section">
+            <div class="edit-form" id="editForm">
+                <!-- Edit form will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Issue Content -->
+        <div class="content-section" id="issueContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+
+        <!-- Resolution Method -->
+        <div class="content-section" id="resolutionSection">
+            <!-- Resolution details will be populated by JavaScript -->
+        </div>
+
+        <!-- Media Gallery -->
+        <div class="content-section" id="mediaSection">
+            <!-- Media will be populated by JavaScript -->
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-section" id="timelineSection">
+            <!-- Timeline will be populated by JavaScript -->
+        </div>
+
+        <!-- Media Upload Zone (Edit Mode) -->
+        <div class="content-section" id="uploadSection" style="display: none;">
+            <h3 class="section-title">📎 Add Media</h3>
+            <div class="media-upload-zone" onclick="document.getElementById('newMediaInput').click()">
+                <p style="color: white; font-size: 18px; margin-bottom: 10px;">📷 📽️ 🎵 Click to Add Media</p>
+                <p style="color: #ccc;">Images (JPEG, PNG) • Audio (MP3, WAV)</p>
+                <input type="file" id="newMediaInput" multiple accept="image/*,audio/*" style="display: none;" onchange="handleNewMedia(event)" />
+            </div>
+            <div id="newMediaPreview" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card">
+            <h3 class="text-white text-center mb-20">⚡ QUICK ACTIONS</h3>
+            <div class="quick-actions" id="quickActions">
+                <!-- Quick actions will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Media Overlay -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay" onclick="closeFullscreen()">
+        <div class="fullscreen-content" onclick="event.stopPropagation()">
+            <button class="fullscreen-close" onclick="closeFullscreen()">✕</button>
+            <div id="fullscreenMedia"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentIssue = null;
+        let allIssues = [];
+        let isEditMode = false;
+        let newMediaFiles = [];
+        let currentIssueIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            loadSelectedIssue();
+            populateIssueSelector();
+        });
+
+        function loadData() {
+            const data = localStorage.getItem('issueTrackerData');
+            if (data) {
+                const parsed = JSON.parse(data);
+                allIssues = parsed.issues || [];
+            } else {
+                allIssues = [];
+            }
+        }
+
+        function saveData() {
+            const data = JSON.parse(localStorage.getItem('issueTrackerData')) || { issues: [], categories: [] };
+            data.issues = allIssues;
+            localStorage.setItem('issueTrackerData', JSON.stringify(data));
+        }
+
+        function loadSelectedIssue() {
+            const selectedId = localStorage.getItem('selectedIssueId');
+            if (selectedId && allIssues.length > 0) {
+                const issueIndex = allIssues.findIndex(issue => issue.id == selectedId);
+                if (issueIndex !== -1) {
+                    currentIssueIndex = issueIndex;
+                    currentIssue = allIssues[issueIndex];
+                } else {
+                    currentIssue = allIssues[0];
+                    currentIssueIndex = 0;
+                }
+            } else if (allIssues.length > 0) {
+                currentIssue = allIssues[0];
+                currentIssueIndex = 0;
+            }
+
+            if (currentIssue) {
+                displayIssue();
+            } else {
+                displayNoIssues();
+            }
+        }
+
+        function populateIssueSelector() {
+            const selector = document.getElementById('issueSelector');
+            selector.innerHTML = '<option value="">Select Issue...</option>';
+            
+            allIssues.forEach((issue, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${issue.title} (${issue.status})`;
+                if (index === currentIssueIndex) {
+                    option.selected = true;
+                }
+                selector.appendChild(option);
+            });
+        }
+
+        function selectIssue() {
+            const selector = document.getElementById('issueSelector');
+            const index = parseInt(selector.value);
+            if (!isNaN(index) && allIssues[index]) {
+                currentIssueIndex = index;
+                currentIssue = allIssues[index];
+                displayIssue();
+                if (isEditMode) {
+                    toggleEditMode(); // Exit edit mode
+                }
+            }
+        }
+
+        function navigateIssue(direction) {
+            if (allIssues.length === 0) return;
+
+            if (direction === 'next') {
+                currentIssueIndex = (currentIssueIndex + 1) % allIssues.length;
+            } else {
+                currentIssueIndex = currentIssueIndex === 0 ? allIssues.length - 1 : currentIssueIndex - 1;
+            }
+
+            currentIssue = allIssues[currentIssueIndex];
+            displayIssue();
+            populateIssueSelector();
+            
+            if (isEditMode) {
+                toggleEditMode(); // Exit edit mode
+            }
+        }
+
+        function displayNoIssues() {
+            document.getElementById('issueHeader').innerHTML = `
+                <div style="text-align: center; padding: 50px;">
+                    <h2 style="color: var(--brick-red); margin-bottom: 20px;">No Issues Found</h2>
+                    <p style="color: #666; margin-bottom: 30px;">Create your first issue to get started!</p>
+                    <button onclick="window.open('issuelogger.html', '_blank')" class="btn">📝 Create New Issue</button>
+                </div>
+            `;
+            
+            // Hide other sections
+            document.getElementById('issueContent').style.display = 'none';
+            document.getElementById('resolutionSection').style.display = 'none';
+            document.getElementById('mediaSection').style.display = 'none';
+            document.getElementById('timelineSection').style.display = 'none';
+        }
+
+        function displayIssue() {
+            if (!currentIssue) {
+                displayNoIssues();
+                return;
+            }
+
+            // Show all sections
+            document.getElementById('issueContent').style.display = 'block';
+            document.getElementById('resolutionSection').style.display = 'block';
+            document.getElementById('mediaSection').style.display = 'block';
+            document.getElementById('timelineSection').style.display = 'block';
+
+            displayIssueHeader();
+            displayIssueContent();
+            displayResolutionSection();
+            displayMediaSection();
+            displayTimeline();
+            updateQuickActions();
+        }
+
+        function displayIssueHeader() {
+            const statusClass = currentIssue.status === 'finished' ? 'status-finished' : 'status-ongoing';
+            const statusIcon = currentIssue.status === 'finished' ? '✅' : '🔄';
+            
+            const isOverdue = currentIssue.expectedDate && new Date(currentIssue.expectedDate) < new Date() && currentIssue.status === 'ongoing';
+
+            document.getElementById('issueHeader').innerHTML = `
+                <div class="issue-title-large">${escapeHtml(currentIssue.title)}</div>
+                <div class="issue-meta-row">
+                    <div class="meta-item">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value">
+                            <span class="status-badge ${statusClass}">${statusIcon} ${currentIssue.status.toUpperCase()}</span>
+                            ${isOverdue ? '<span class="status-badge status-overdue">⚠️ OVERDUE</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Category</div>
+                        <div class="meta-value">${escapeHtml(currentIssue.category)}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Created Date</div>
+                        <div class="meta-value">${formatDate(currentIssue.date)}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Expected Resolution</div>
+                        <div class="meta-value">${currentIssue.expectedDate ? formatDate(currentIssue.expectedDate) : 'Not Set'}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Actual Resolution</div>
+                        <div class="meta-value">${currentIssue.actualDate ? formatDate(currentIssue.actualDate) : 'Pending'}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Last Updated</div>
+                        <div class="meta-value">${formatDate(currentIssue.lastUpdated || currentIssue.date)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayIssueContent() {
+            document.getElementById('issueContent').innerHTML = `
+                <h3 class="section-title">📝 Issue Description</h3>
+                <div class="content-text">${escapeHtml(currentIssue.content)}</div>
+            `;
+        }
+
+        function displayResolutionSection() {
+            const resolutionContent = currentIssue.resolutionMethod ? 
+                `<div class="content-text">${escapeHtml(currentIssue.resolutionMethod)}</div>` :
+                `<div class="content-text" style="color: #999; font-style: italic;">No resolution method specified yet.</div>`;
+
+            document.getElementById('resolutionSection').innerHTML = `
+                <h3 class="section-title">🔧 Resolution Method</h3>
+                ${resolutionContent}
+            `;
+        }
+
+        function displayMediaSection() {
+            const hasImages = currentIssue.images && currentIssue.images.length > 0;
+            const hasAudio = currentIssue.audio;
+
+            if (!hasImages && !hasAudio) {
+                document.getElementById('mediaSection').innerHTML = `
+                    <h3 class="section-title">📎 Media Attachments</h3>
+                    <div class="content-text" style="color: #999; font-style: italic; text-align: center;">
+                        No media attachments found.
+                        ${isEditMode ? 'Use the media upload section below to add images or audio recordings.' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            let mediaHTML = `<h3 class="section-title">📎 Media Attachments</h3>`;
+
+            if (hasImages) {
+                mediaHTML += `<h4 style="color: var(--brick-red); margin: 20px 0 15px;">📷 Images (${currentIssue.images.length})</h4>`;
+                mediaHTML += `<div class="media-gallery">`;
+                
+                currentIssue.images.forEach((image, index) => {
+                    mediaHTML += `
+                        <div class="media-item">
+                            <div class="media-placeholder" onclick="viewMediaFullscreen('image', ${index})">
+                                📷
+                            </div>
+                            ${isEditMode ? `
+                                <div class="media-controls">
+                                    <button class="media-btn" onclick="removeMedia('image', ${index})" title="Delete">🗑️</button>
+                                </div>
+                            ` : ''}
+                            <div style="padding: 10px; text-align: center; font-size: 12px; color: #666;">
+                                ${escapeHtml(image.name || `Image ${index + 1}`)}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                mediaHTML += `</div>`;
+            }
+
+            if (hasAudio) {
+                mediaHTML += `<h4 style="color: var(--brick-red); margin: 20px 0 15px;">🎵 Audio Recording</h4>`;
+                mediaHTML += `
+                    <div class="media-item">
+                        <div class="audio-player">
+                            <div style="font-size: 24px; margin-bottom: 10px;">🎤</div>
+                            <div style="font-weight: bold; margin-bottom: 15px;">Voice Recording</div>
+                            <div class="audio-controls">
+                                <button class="play-btn" onclick="playAudio()" id="audioPlayBtn">▶️</button>
+                                <span style="font-size: 14px;">Click to play recording</span>
+                            </div>
+                            ${isEditMode ? `
+                                <button class="btn" onclick="removeMedia('audio', 0)" style="background: rgba(255,255,255,0.2); margin-top: 15px;">
+                                    🗑️ Remove Audio
+                                </button>
+                            ` : ''}
+                            <audio id="audioElement" style="display: none;"></audio>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('mediaSection').innerHTML = mediaHTML;
+        }
+
+        function displayTimeline() {
+            const timeline = generateTimeline();
+            
+            document.getElementById('timelineSection').innerHTML = `
+                <h3 class="section-title">⏰ Issue Timeline</h3>
+                <div class="timeline" id="timeline">
+                    ${timeline}
+                </div>
+            `;
+        }
+
+        function generateTimeline() {
+            const events = [];
+
+            // Creation event
+            events.push({
+                date: currentIssue.date,
+                title: 'Issue Created',
+                description: `Issue "${currentIssue.title}" was created in category "${currentIssue.category}".`,
+                type: 'creation'
+            });
+
+            // Expected resolution
+            if (currentIssue.expectedDate) {
+                events.push({
+                    date: currentIssue.expectedDate + 'T00:00:00',
+                    title: 'Expected Resolution Date',
+                    description: 'Target date for resolving this issue.',
+                    type: 'target'
+                });
+            }
+
+            // Last updated (if different from creation)
+            if (currentIssue.lastUpdated && currentIssue.lastUpdated !== currentIssue.date) {
+                events.push({
+                    date: currentIssue.lastUpdated,
+                    title: 'Issue Updated',
+                    description: 'Issue details were modified.',
+                    type: 'update'
+                });
+            }
+
+            // Actual resolution
+            if (currentIssue.actualDate) {
+                events.push({
+                    date: currentIssue.actualDate + 'T23:59:59',
+                    title: 'Issue Resolved',
+                    description: currentIssue.resolutionMethod || 'Issue was marked as resolved.',
+                    type: 'resolution'
+                });
+            }
+
+            // Sort events by date
+            events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            return events.map(event => `
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">${formatDate(event.date)}</div>
+                        <div class="timeline-title">${event.title}</div>
+                        <div class="timeline-description">${event.description}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateQuickActions() {
+            const actions = [];
+
+            if (currentIssue.status === 'ongoing') {
+                actions.push(`<button class="quick-btn" onclick="markAsResolved()">✅ Mark as Resolved</button>`);
+            } else {
+                actions.push(`<button class="quick-btn" onclick="reopenIssue()">🔄 Reopen Issue</button>`);
+            }
+
+            actions.push(`<button class="quick-btn" onclick="addComment()">💬 Add Comment</button>`);
+            actions.push(`<button class="quick-btn" onclick="shareIssue()">🔗 Share Issue</button>`);
+            actions.push(`<button class="quick-btn" onclick="printIssue()">🖨️ Print</button>`);
+
+            document.getElementById('quickActions').innerHTML = actions.join('');
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const editBtn = document.getElementById('editBtn');
+            const actionBar = document.getElementById('actionBar');
+            const editForm = document.getElementById('editForm');
+            const uploadSection = document.getElementById('uploadSection');
+
+            if (isEditMode) {
+                editBtn.textContent = '💾 Save Changes';
+                actionBar.classList.add('edit-mode');
+                editForm.classList.add('active');
+                uploadSection.style.display = 'block';
+                populateEditForm();
+            } else {
+                if (editBtn.textContent.includes('Save')) {
+                    saveChanges();
+                }
+                editBtn.textContent = '✏️ Edit Issue';
+                actionBar.classList.remove('edit-mode');
+                editForm.classList.remove('active');
+                uploadSection.style.display = 'none';
+                newMediaFiles = [];
+            }
+
+            displayIssue(); // Refresh display with edit controls
+        }
+
+        function populateEditForm() {
+            const data = JSON.parse(localStorage.getItem('issueTrackerData'));
+            const categories = data.categories || [];
+            
+            let categoryOptions = categories.map(cat => 
+                `<option value="${escapeHtml(cat.name)}" ${currentIssue.category === cat.name ? 'selected' : ''}>${escapeHtml(cat.name)}</option>`
+            ).join('');
+
+            document.getElementById('editForm').innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Issue Title</label>
+                    <input type="text" id="editTitle" class="form-input" value="${escapeHtml(currentIssue.title)}" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="editCategory" class="form-select">
+                        ${categoryOptions}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Issue Date</label>
+                    <input type="datetime-local" id="editDate" class="form-input" value="${formatDateForInput(currentIssue.date)}" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Expected Resolution Date</label>
+                    <input type="date" id="editExpectedDate" class="form-input" value="${currentIssue.expectedDate || ''}" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select id="editStatus" class="form-select">
+                        <option value="ongoing" ${currentIssue.status === 'ongoing' ? 'selected' : ''}>Ongoing</option>
+                        <option value="finished" ${currentIssue.status === 'finished' ? 'selected' : ''}>Finished</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Actual Resolution Date</label>
+                    <input type="date" id="editActualDate" class="form-input" value="${currentIssue.actualDate || ''}" />
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="form-label">Issue Content</label>
+                    <textarea id="editContent" class="form-textarea">${escapeHtml(currentIssue.content)}</textarea>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="form-label">Resolution Method</label>
+                    <textarea id="editResolution" class="form-textarea">${escapeHtml(currentIssue.resolutionMethod || '')}</textarea>
+                </div>
+            `;
+        }
+
+        function saveChanges() {
+            const updatedIssue = {
+                ...currentIssue,
+                title: document.getElementById('editTitle').value.trim(),
+                category: document.getElementById('editCategory').value,
+                date: document.getElementById('editDate').value,
+                content: document.getElementById('editContent').value.trim(),
+                resolutionMethod: document.getElementById('editResolution').value.trim(),
+                expectedDate: document.getElementById('editExpectedDate').value,
+                actualDate: document.getElementById('editActualDate').value,
+                status: document.getElementById('editStatus').value,
+                lastUpdated: new Date().toISOString()
+            };
+
+            // Add new media files
+            if (newMediaFiles.length > 0) {
+                if (!updatedIssue.images) updatedIssue.images = [];
+                newMediaFiles.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        updatedIssue.images.push({
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            data: null // In real app, would upload to server
+                        });
+                    } else if (file.type.startsWith('audio/')) {
+                        updatedIssue.audio = {
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            data: null // In real app, would upload to server
+                        };
+                    }
+                });
+            }
+
+            // Update in array and save
+            allIssues[currentIssueIndex] = updatedIssue;
+            currentIssue = updatedIssue;
+            saveData();
+            
+            alert('✅ Issue updated successfully!');
+            populateIssueSelector();
+        }
+
+        function deleteIssue() {
+            if (!currentIssue) return;
+            
+            if (confirm(`Are you sure you want to delete the issue "${currentIssue.title}"? This action cannot be undone.`)) {
+                allIssues.splice(currentIssueIndex, 1);
+                saveData();
+                
+                if (allIssues.length > 0) {
+                    currentIssueIndex = Math.min(currentIssueIndex, allIssues.length - 1);
+                    currentIssue = allIssues[currentIssueIndex];
+                    displayIssue();
+                    populateIssueSelector();
+                } else {
+                    currentIssue = null;
+                    displayNoIssues();
+                }
+                
+                alert('🗑️ Issue deleted successfully!');
+            }
+        }
+
+        function duplicateIssue() {
+            if (!currentIssue) return;
+            
+            const duplicate = {
+                ...currentIssue,
+                id: Date.now(),
+                title: currentIssue.title + ' (Copy)',
+                date: new Date().toISOString(),
+                actualDate: '',
+                status: 'ongoing',
+                lastUpdated: new Date().toISOString()
+            };
+            
+            allIssues.unshift(duplicate);
+            saveData();
+            
+            currentIssueIndex = 0;
+            currentIssue = duplicate;
+            displayIssue();
+            populateIssueSelector();
+            
+            alert('📋 Issue duplicated successfully!');
+        }
+
+        function exportIssue() {
+            if (!currentIssue) return;
+            
+            const exportData = JSON.stringify(currentIssue, null, 2);
+            const blob = new Blob([exportData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `issue-${currentIssue.id}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function markAsResolved() {
+            if (!currentIssue) return;
+            
+            const resolutionDate = prompt('Enter resolution date (YYYY-MM-DD) or leave empty for today:');
+            const actualDate = resolutionDate || new Date().toISOString().split('T')[0];
+            
+            currentIssue.status = 'finished';
+            currentIssue.actualDate = actualDate;
+            currentIssue.lastUpdated = new Date().toISOString();
+            
+            allIssues[currentIssueIndex] = currentIssue;
+            saveData();
+            displayIssue();
+            
+            alert('✅ Issue marked as resolved!');
+        }
+
+        function reopenIssue() {
+            if (!currentIssue) return;
+            
+            if (confirm('Are you sure you want to reopen this issue?')) {
+                currentIssue.status = 'ongoing';
+                currentIssue.actualDate = '';
+                currentIssue.lastUpdated = new Date().toISOString();
+                
+                allIssues[currentIssueIndex] = currentIssue;
+                saveData();
+                displayIssue();
+                
+                alert('🔄 Issue reopened successfully!');
+            }
+        }
+
+        function handleNewMedia(event) {
+            const files = Array.from(event.target.files);
+            newMediaFiles.push(...files);
+            displayNewMediaPreviews();
+        }
+
+        function displayNewMediaPreviews() {
+            const preview = document.getElementById('newMediaPreview');
+            preview.innerHTML = '';
+            
+            newMediaFiles.forEach((file, index) => {
+                const container = document.createElement('div');
+                container.style.cssText = 'display: inline-block; margin: 10px; padding: 10px; border: 2px solid var(--fire-orange); border-radius: 10px; background: white;';
+                
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        container.innerHTML = `
+                            <img src="${e.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;" />
+                            <div style="text-align: center; margin-top: 5px; font-size: 12px;">${file.name}</div>
+                            <button onclick="removeNewMedia(${index})" style="display: block; margin: 5px auto; padding: 2px 8px; border: none; background: red; color: white; border-radius: 3px; cursor: pointer;">Remove</button>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('audio/')) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 24px;">🎵</div>
+                            <div style="font-size: 12px; margin: 5px 0;">${file.name}</div>
+                            <button onclick="removeNewMedia(${index})" style="padding: 2px 8px; border: none; background: red; color: white; border-radius: 3px; cursor: pointer;">Remove</button>
+                        </div>
+                    `;
+                }
+                
+                preview.appendChild(container);
+            });
+        }
+
+        function removeNewMedia(index) {
+            newMediaFiles.splice(index, 1);
+            displayNewMediaPreviews();
+        }
+
+        function removeMedia(type, index) {
+            if (!confirm('Are you sure you want to remove this media?')) return;
+            
+            if (type === 'image' && currentIssue.images) {
+                currentIssue.images.splice(index, 1);
+            } else if (type === 'audio') {
+                currentIssue.audio = null;
+            }
+            
+            currentIssue.lastUpdated = new Date().toISOString();
+            allIssues[currentIssueIndex] = currentIssue;
+            saveData();
+            displayIssue();
+        }
+
+        function viewMediaFullscreen(type, index) {
+            const overlay = document.getElementById('fullscreenOverlay');
+            const content = document.getElementById('fullscreenMedia');
+            
+            if (type === 'image') {
+                content.innerHTML = `
+                    <div style="text-align: center; color: white;">
+                        <div style="font-size: 200px; margin-bottom: 20px;">📷</div>
+                        <h3>Image Preview</h3>
+                        <p>In a real application, this would show the actual image.</p>
+                        <p style="font-size: 14px; opacity: 0.8;">Filename: ${currentIssue.images[index].name}</p>
+                    </div>
+                `;
+            }
+            
+            overlay.style.display = 'flex';
+        }
+
+        function closeFullscreen() {
+            document.getElementById('fullscreenOverlay').style.display = 'none';
+        }
+
+        function playAudio() {
+            // In a real application, this would play the actual audio file
+            alert('🎵 In a real application, this would play the recorded audio file.');
+        }
+
+        function addComment() {
+            const comment = prompt('Add a comment to this issue:');
+            if (comment && comment.trim()) {
+                alert('💬 Comment feature would be implemented in the full application.');
+            }
+        }
+
+        function shareIssue() {
+            const shareText = `Issue: ${currentIssue.title}\nStatus: ${currentIssue.status}\nCategory: ${currentIssue.category}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Issue Tracker',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('🔗 Issue details copied to clipboard!');
+                }).catch(() => {
+                    alert('🔗 Share feature: ' + shareText);
+                });
+            }
+        }
+
+        function printIssue() {
+            window.print();
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Not Set';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function formatDateForInput(dateString) {
+            const date = new Date(dateString);
+            return date.toISOString().slice(0, 16);
+        }
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '')
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
